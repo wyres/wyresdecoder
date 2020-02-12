@@ -1,0 +1,26 @@
+{
+  "name": "@wyres/wyresdecoder",
+  "version": "1.0.0",
+  "description": "Decode Wyres V3 payloads",
+  "license": "TOTO",
+  "repository": "",
+  "main": "index.js",
+  "keywords": [
+    "wyres",
+    "lorawan",
+    "payload",
+    "decode"
+  ],
+  "module": "src/index.js",
+  "devDependencies": {
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
+  },
+  "scripts": {
+    "develop": "webpack --mode development --watch",
+    "build": "webpack --mode production"
+  },
+  "dependencies": {
+    "moment": "^2.24.0"
+  }
+}

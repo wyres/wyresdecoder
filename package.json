@@ -2,7 +2,7 @@
   "name": "@wyres/wyresdecoder",
   "version": "1.0.0",
   "description": "Decode Wyres V3 payloads",
-  "license": "TOTO",
+  "license": "Apache-2.0",
   "repository": "",
   "main": "index.js",
   "keywords": [
@@ -22,5 +22,6 @@
   },
   "dependencies": {
     "moment": "^2.24.0"
-  }
+  },
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }

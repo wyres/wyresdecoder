@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+
+<head>
+  <title>Hello Webpack</title>
+  <meta charset="UTF-8">
+
+</head>
+
+<body>
+  Encrypted :
+  <input type="text" size="100" id="payload" value="501c1305020204ba001504025c0303190302000c0404078c01000302590a" />
+  <button onclick="decryptIt()">Decrypt it !</button>
+  <br />
+  Decrypted :
+  <div id="decrypted"></div>
+
+  <script src="wyresdecoder.js"></script>
+  <script src="https://momentjs.com/downloads/moment.min.js"></script>
+  <script>
+
+    
+    let intArrayPayload = [50, 28, 19, 5, 2, 2, 4, 186, 0, 21, 4, 2, 92, 3, 3, 25, 3, 2, 0, 12, 4, 4, 7, 140, 1, 0, 3, 2, 89, 10];
+    console.log(wyresdecoder.parseAndInterprete(wyresdecoder.convertFromArray(intArrayPayload)));
+
+    function decryptIt() {
+      var decoded = wyresdecoder.parseAndInterprete(document.getElementById('payload').value);
+      var stringif = JSON.stringify(decoded,null,5);
+      
+      document.getElementById('decrypted').innerHTML =  "<pre>"+stringif+"</pre>";
+    }
+
+    
+
+  </script>
+</body>
+
+</html>

@@ -28,9 +28,8 @@ export function convertFromArray(arrayBytes) {
 function interpretePayload(tlvs) {
   var interpreted = {};
   tlvs.forEach(function (tlv) {
-    var key = tlv.t;
     var value = tlv.v;
-    switch (key) {
+    switch (tlv.t) {
       case '00':
         var p1 = parseInt('0x' + value.substring(0, 2));
         var p2 = parseInt('0x' + value.substring(2, 4));
@@ -142,6 +141,9 @@ function interpretePayload(tlvs) {
           interpreted['bleExit'].data.push({ "major": "00" + lsbMaj, "minor": msbMin + lsbMin });
         }
         break;
+      case '0a': // noise detection
+        // TODO (NYI on device)
+        break;
       case '0c':
         interpreted['move'] = addData(parseDate(value));
         break;
@@ -157,8 +159,8 @@ function interpretePayload(tlvs) {
       case '0b': //button
         var btnID = value.substring(16, 18);
         var pressType = value.substring(18, 20);
-        var mFrom = moment.duration(vm.read_uint32(value, 0));
-        var mTo = moment.duration(vm.read_uint32(value, 8));
+        var mFrom = moment.duration(read_uint32(value, 0) * 1000);
+        var mTo = moment.duration(read_uint32(value, 8) * 1000);
         interpreted['button'] = addData({ "from": mFrom.toISOString(), "to": mTo.toISOString(), "btn": btnID, "pressType": pressType });
         break;
       case '16': //GPS
@@ -202,6 +204,9 @@ function interpretePayload(tlvs) {
             interpreted['presence'].data.push(iBeacon + idx.toString(16).padStart(2, "0"));
           }
         }
+        break;
+      default:
+        console.log('Unknown key [',tlv.t,']',value);
     }
   });
   return interpreted;

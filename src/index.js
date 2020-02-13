@@ -159,8 +159,8 @@ function interpretePayload(tlvs) {
       case '0b': //button
         var btnID = value.substring(16, 18);
         var pressType = value.substring(18, 20);
-        var mFrom = moment.duration(read_uint32(value, 0) * 1000);
-        var mTo = moment.duration(read_uint32(value, 8) * 1000);
+        var mFrom = moment(read_uint32(value, 0) * 1000);
+        var mTo = moment(read_uint32(value, 8) * 1000);
         interpreted['button'] = addData({ "from": mFrom.toISOString(), "to": mTo.toISOString(), "btn": btnID, "pressType": pressType });
         break;
       case '16': //GPS
@@ -255,8 +255,8 @@ let read_uint32 = function (str, start) {
 };
 
 let parseDate = function (value) {
-  var m = moment.duration(read_uint32(value, 0) * 1000);
-  return m.toISOString()
+  var m = moment(read_uint32(value, 0) * 1000);
+  return m.toISOString();
 };
 
 let parseIbeacons = function (str) {

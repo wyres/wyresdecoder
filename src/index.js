@@ -49,7 +49,7 @@ function interpretePayload(tlvs) {
         ];
 
 
-        var o = _.find(hashObj, function (o) { return o.hash === hash });
+        var o = hashObj.find(o => o.hash === hash );
 
         interpreted['version'] = addData({ 'version': p1 + '.' + p2, 'build': +version, 'product': (o ? o.label : hash) });
         break;
@@ -205,18 +205,63 @@ function interpretePayload(tlvs) {
           }
         }
         break;
+		case 'dlId':
+		  if (tlv.v> 15 || tlv.v < 0)
+		  {
+			interpreted['dlId'] = addError('Bad DLID ['+value+']');
+		  }else {
+			  interpreted['dlId'] = addData(value);
+		  }
+		  break;
+		case 'payloadVersion':
+		  if (tlv.v !== 1)
+		  {
+			interpreted['payloadVersion'] = addError('Bad Payload version ['+value+']');
+		  }else {
+			  interpreted['payloadVersion'] = addData(value);
+		  }
+		  break;
+		case 'willListen':
+		   if (tlv.v !== 0)
+		  {
+			interpreted['willListen'] = addData(true);
+		  }else {
+			  interpreted['willListen'] = addData(false);
+		  }
+		  break;
+		case 'payloadLength':
+		  interpreted['payloadLengthError'] = addError(value);
+		  break;
       default:
         console.log('Unknown key [',tlv.t,']',value);
     }
   });
-  return interpreted;
+  return {"data:":interpreted};
 };
 
 var parsePayload = function (hexString) {
   var decodedPayload = [];
-  //TODO decode first 4 caracters
-  var i = 4;
+  
+  var b0 = parseInt('0x'+hexString[0]+hexString[1]);
 
+  //DlId
+  decodedPayload.push({ "t": 'dlId', "l": 0, "v": b0 & 15 });
+
+  //PayloadVersion
+  decodedPayload.push({ "t": 'payloadVersion', "l": 0, "v": (b0 & 48)>>4 });
+  
+  //Will listen
+  decodedPayload.push({ "t": 'willListen', "l": 0, "v": ((b0 & 64)) });
+  
+  
+  var payloadLength = parseInt('0x'+hexString[2]+hexString[3]);
+  
+  if(payloadLength!==(hexString.length/2) -2)
+  {
+	decodedPayload.push({ "t": 'payloadLength', "l": -1, "v": 'payload length incoherence detected' });
+  }
+
+  var i = 4;
   while (i < hexString.length) {
     var tVal, lVal = 0;
     var valVal = "";

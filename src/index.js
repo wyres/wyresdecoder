@@ -66,14 +66,14 @@ function interpretePayload(tlvs) {
         break;
       case '12':
         if (value.length === 0) {
-          interpreted['bleCurrent'] = addError("no iBeacon seen");
+          interpreted['bleCurrent'] = addWarn("no iBeacon seen");
           break;
         }
         interpreted['bleCurrent'] = addData(parseIbeacons(value));
         break;
       case '15':
         if (value.length === 0) {
-          interpreted['bleCurrent'] = addError("no iBeacon seen");
+          interpreted['bleCurrent'] = addWarn("no iBeacon seen");
           break;
         }
         interpreted['bleCount'] = addData(parseIbeaconsCounter(value));
@@ -165,7 +165,7 @@ function interpretePayload(tlvs) {
         break;
       case '16': //GPS
         if (value.length === 0) {
-          interpreted['gps'] = addError("check done, no FIX");
+          interpreted['gps'] = addWarn("check done, no FIX");
           break;
         }
 
@@ -182,7 +182,7 @@ function interpretePayload(tlvs) {
         break;
       case '19': //presence
         if (value.length === 0) {
-          interpreted['presence'] = addError("no presence iBeacon seen");
+          interpreted['presence'] = addWarn("no presence iBeacon seen");
           break;
         }
         var p1 = value.substring(0, 2);
@@ -337,4 +337,7 @@ let addData = function (json) {
 
 let addError = function (errorMsg) {
   return { "error": errorMsg };
+};
+let addWarn = function (warnMsg) {
+  return { "warn": warnMsg };
 };

@@ -236,7 +236,7 @@ function interpretePayload(tlvs) {
         console.log('Unknown key [',tlv.t,']',value);
     }
   });
-  return {"data:":interpreted};
+  return {"data":interpreted};
 };
 
 var parsePayload = function (hexString) {

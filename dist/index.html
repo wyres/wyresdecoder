@@ -28,7 +28,7 @@
     console.log(wyresdecoder.parseAndInterprete(wyresdecoder.convertFromArray(intArrayPayload)));
 
     function decryptIt() {
-      var decoded = wyresdecoder.parseAndInterprete(document.getElementById('payload').value);
+      var decoded = wyresdecoder.parseAndInterprete(document.getElementById('payload').value.trim());
       var stringif = JSON.stringify(decoded,null,5);
       
       document.getElementById('decrypted').innerHTML =  "<pre>"+stringif+"</pre>";

@@ -30,7 +30,7 @@ function interpretePayload(tlvs) {
   tlvs.forEach(function (tlv) {
     var value = tlv.v;
     switch (tlv.t) {
-      case '00':
+      case '00': //version
         var p1 = parseInt('0x' + value.substring(0, 2));
         var p2 = parseInt('0x' + value.substring(2, 4));
         var p3 = parseInt('0x' + value.substring(6, 8) + value.substring(4, 6));
@@ -205,6 +205,18 @@ function interpretePayload(tlvs) {
           }
         }
         break;
+		case '10': //ENV_REBOOT
+			interpreted['rebootReason'] = addData(value);
+		break;
+		case '11': //ENV_LASTASSERT
+			interpreted['lastAssert'] = addData(value);
+		break;
+		case '17': //BLE_ERROR_MASK
+			interpreted['bleErrorMask'] = addData(value);
+		break;
+		case '18': //ENV_LASTLOGCALLER
+			interpreted['lastLogCaller'] = addData(value);
+		break;
 		case 'dlId':
 		  if (tlv.v> 15 || tlv.v < 0)
 		  {

@@ -343,6 +343,14 @@ let parseIbeaconsCounter = function (str) {
   return types;
 };
 
+let convertRawGPS = function(raw)
+{
+
+	var ret = Math.floor(raw/1000000);		// degree part
+	return (ret+((raw - parseInt(ret*1000000))/600000));
+};
+
+
 let addData = function (json) {
   return { "data": json };
 };

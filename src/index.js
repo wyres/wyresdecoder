@@ -180,11 +180,15 @@ function interpretePayload(tlvs) {
         var nSats = parseInt('0x' + value.substring(40, 42));
         interpreted['gps'] = addData({ "lat": parseFloat(latDD).toFixed(5), "lon": parseFloat(lonDD).toFixed(5), "alt": alt, "precision": prec, "timestamp": ts, "nsats": nSats });
         break;
-      case '19': //presence
+      case '19': //presence double...
         if (value.length === 0) {
           interpreted['presence'] = addWarn("no presence iBeacon seen");
           break;
         }
+		if(interpreted['presence']===undefined)
+		{
+			interpreted['presence'] = addData([]);
+		}
         var p1 = value.substring(0, 2);
         var p2 = value.substring(2, 4);
         var p3 = value.substring(2, value.length);
@@ -197,7 +201,6 @@ function interpretePayload(tlvs) {
         }
         var iBeacon = '81' + p1 + '-00';
         var byteMask = hex2bin(p3Rework);
-        interpreted['presence'] = addData([]);
         for (var i = byteMask.length - 1; i >= 0; i--) {
           if (parseInt(byteMask[i]) === 1) {
             var idx = (byteMask.length - 1) - i;
@@ -216,6 +219,18 @@ function interpretePayload(tlvs) {
 		break;
 		case '18': //ENV_LASTLOGCALLER
 			interpreted['lastLogCaller'] = addData(value);
+		break;
+		case '02': //getConfig double...
+			if(interpreted['getConfig']===undefined)
+			{
+				interpreted['getConfig'] = addData([]);
+			}
+			
+			let key = value.substring(0, 2);
+			let mod = value.substring(2, 4);
+			let len = parseInt(value.substring(4, 6),16);
+			let val = value.substring(6,6+(len*2));
+			interpreted['getConfig'].data.push({"key":""+mod+key,"length":len,"value":val,"raw":value});
 		break;
 		case 'dlId':
 		  if (tlv.v> 15 || tlv.v < 0)

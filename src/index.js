@@ -49,7 +49,7 @@ function interpretePayload(tlvs) {
         ];
 
 
-        var o = hashObj.find(o => o.hash === hash );
+        var o = hashObj.find(o => o.hash === hash);
 
         interpreted['version'] = addData({ 'version': p1 + '.' + p2, 'build': +version, 'product': (o ? o.label : hash) });
         break;
@@ -168,27 +168,26 @@ function interpretePayload(tlvs) {
           interpreted['gps'] = addWarn("check done, no FIX");
           break;
         }
+        var status = parseInt(value.substring(0, 2), 16);
+        var latDD = convertRawGPS(read_uint32(value, 2));
+        var lonDD = convertRawGPS(read_uint32(value, 10));
 
-        var latDD = convertRawGPS(read_uint32(value, 0));
-        var lonDD = convertRawGPS(read_uint32(value, 8));
+        var alt = read_uint32(value, 18) / 10;
+        var prec = read_uint32(value, 26) / 10;
 
-        var alt = read_uint32(value, 16) / 10;
-        var prec = read_uint32(value, 24) / 10;
+        var ts = read_uint32(value, 34);
 
-        var ts = read_uint32(value, 32);
-
-        var nSats = parseInt('0x' + value.substring(40, 42));
-        interpreted['gps'] = addData({ "lat": parseFloat(latDD).toFixed(5), "lon": parseFloat(lonDD).toFixed(5), "alt": alt, "precision": prec, "timestamp": ts, "nsats": nSats });
+        var nSats = parseInt('0x' + value.substring(42, 44));
+        interpreted['gps'] = addData({ status: status, lat: parseFloat(latDD).toFixed(5), lon: parseFloat(lonDD).toFixed(5), alt: alt, precision: prec, timestamp: ts, nsats: nSats });
         break;
       case '19': //presence double...
         if (value.length === 0) {
           interpreted['presence'] = addWarn("no presence iBeacon seen");
           break;
         }
-		if(interpreted['presence']===undefined)
-		{
-			interpreted['presence'] = addData([]);
-		}
+        if (interpreted['presence'] === undefined) {
+          interpreted['presence'] = addData([]);
+        }
         var p1 = value.substring(0, 2);
         var p2 = value.substring(2, 4);
         var p3 = value.substring(2, value.length);
@@ -208,84 +207,79 @@ function interpretePayload(tlvs) {
           }
         }
         break;
-		case '10': //ENV_REBOOT
-			interpreted['rebootReason'] = addData(value);
-		break;
-		case '11': //ENV_LASTASSERT
-			interpreted['lastAssert'] = addData(value);
-		break;
-		case '17': //BLE_ERROR_MASK
-			interpreted['bleErrorMask'] = addData(value);
-		break;
-		case '18': //ENV_LASTLOGCALLER
-			interpreted['lastLogCaller'] = addData(value);
-		break;
-		case '02': //getConfig double...
-			if(interpreted['getConfig']===undefined)
-			{
-				interpreted['getConfig'] = addData([]);
-			}
-			
-			let key = value.substring(0, 2);
-			let mod = value.substring(2, 4);
-			let len = parseInt(value.substring(4, 6),16);
-			let val = value.substring(6,6+(len*2));
-			interpreted['getConfig'].data.push({"key":""+mod+key,"length":len,"value":val,"raw":value});
-		break;
-		case 'dlId':
-		  if (tlv.v> 15 || tlv.v < 0)
-		  {
-			interpreted['dlId'] = addError('Bad DLID ['+value+']');
-		  }else {
-			  interpreted['dlId'] = addData(value);
-		  }
-		  break;
-		case 'payloadVersion':
-		  if (tlv.v !== 1)
-		  {
-			interpreted['payloadVersion'] = addError('Bad Payload version ['+value+']');
-		  }else {
-			  interpreted['payloadVersion'] = addData(value);
-		  }
-		  break;
-		case 'willListen':
-		   if (tlv.v !== 0)
-		  {
-			interpreted['willListen'] = addData(true);
-		  }else {
-			  interpreted['willListen'] = addData(false);
-		  }
-		  break;
-		case 'payloadLength':
-		  interpreted['payloadLengthError'] = addError(value);
-		  break;
+      case '10': //ENV_REBOOT
+        interpreted['rebootReason'] = addData(value);
+        break;
+      case '11': //ENV_LASTASSERT
+        interpreted['lastAssert'] = addData(value);
+        break;
+      case '17': //BLE_ERROR_MASK
+        interpreted['bleErrorMask'] = addData(value);
+        break;
+      case '18': //ENV_LASTLOGCALLER
+        interpreted['lastLogCaller'] = addData(value);
+        break;
+      case '02': //getConfig double...
+        if (interpreted['getConfig'] === undefined) {
+          interpreted['getConfig'] = addData([]);
+        }
+
+        let key = value.substring(0, 2);
+        let mod = value.substring(2, 4);
+        let len = parseInt(value.substring(4, 6), 16);
+        let val = value.substring(6, 6 + (len * 2));
+        interpreted['getConfig'].data.push({ "key": "" + mod + key, "length": len, "value": val, "raw": value });
+        break;
+      case 'dlId':
+        if (tlv.v > 15 || tlv.v < 0) {
+          interpreted['dlId'] = addError('Bad DLID [' + value + ']');
+        } else {
+          interpreted['dlId'] = addData(value);
+        }
+        break;
+      case 'payloadVersion':
+        if (tlv.v !== 1) {
+          interpreted['payloadVersion'] = addError('Bad Payload version [' + value + ']');
+        } else {
+          interpreted['payloadVersion'] = addData(value);
+        }
+        break;
+      case 'willListen':
+        if (tlv.v !== 0) {
+          interpreted['willListen'] = addData(true);
+        } else {
+          interpreted['willListen'] = addData(false);
+        }
+        break;
+      case 'payloadLength':
+        interpreted['payloadLengthError'] = addError(value);
+        break;
       default:
-        console.log('Unknown key [',tlv.t,']',value);
+        console.log('Unknown key [', tlv.t, ']', value);
     }
   });
-  return {"data":interpreted};
+  return { "data": interpreted };
 };
 
 var parsePayload = function (hexString) {
   var decodedPayload = [];
-  
-  var b0 = parseInt('0x'+hexString[0]+hexString[1]);
+
+  var b0 = parseInt('0x' + hexString[0] + hexString[1]);
 
   //DlId
   decodedPayload.push({ "t": 'dlId', "l": 0, "v": b0 & 15 });
 
   //PayloadVersion
-  decodedPayload.push({ "t": 'payloadVersion', "l": 0, "v": (b0 & 48)>>4 });
-  
+  decodedPayload.push({ "t": 'payloadVersion', "l": 0, "v": (b0 & 48) >> 4 });
+
   //Will listen
   decodedPayload.push({ "t": 'willListen', "l": 0, "v": ((b0 & 64)) });
-  
-  
-  var payloadLength = parseInt('0x'+hexString[2]+hexString[3]);
-  
-  if(payloadLength!==(hexString.length/2) -2)
-  {
-	decodedPayload.push({ "t": 'payloadLength', "l": -1, "v": 'payload length incoherence detected' });
+
+
+  var payloadLength = parseInt('0x' + hexString[2] + hexString[3]);
+
+  if (payloadLength !== (hexString.length / 2) - 2) {
+    decodedPayload.push({ "t": 'payloadLength', "l": -1, "v": 'payload length incoherence detected' });
   }
 
   var i = 4;
@@ -358,11 +352,10 @@ let parseIbeaconsCounter = function (str) {
   return types;
 };
 
-let convertRawGPS = function(raw)
-{
+let convertRawGPS = function (raw) {
 
-	var ret = Math.floor(raw/1000000);		// degree part
-	return (ret+((raw - parseInt(ret*1000000))/600000));
+  var ret = Math.floor(raw / 1000000);		// degree part
+  return (ret + ((raw - parseInt(ret * 1000000)) / 600000));
 };
 
 

@@ -2,7 +2,7 @@
 <html>
 
 <head>
-  <title>Hello Webpack</title>
+  <title>Hello WyresDecoder</title>
   <meta charset="UTF-8">
 
 </head>
@@ -22,8 +22,8 @@
   <script src="wyresdecoder.js"></script>
   <script src="https://momentjs.com/downloads/moment.min.js"></script>
   <script>
+    wyresdecoder = wyresdecoder.default;
 
-    
     let intArrayPayload = [50, 28, 19, 5, 2, 2, 4, 186, 0, 21, 4, 2, 92, 3, 3, 25, 3, 2, 0, 12, 4, 4, 7, 140, 1, 0, 3, 2, 89, 10];
     console.log(wyresdecoder.parseAndInterprete(wyresdecoder.convertFromArray(intArrayPayload)));
 

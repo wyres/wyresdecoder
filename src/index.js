@@ -233,6 +233,12 @@ static interpretePayload(tlvs) {
         let val = value.substring(6, 6 + (len * 2));
         interpreted['getConfig'].data.push({ "key": "" + mod + key, "length": len, "value": val, "raw": value });
         break;
+      case '26': //UL_APP_ACK_REQ
+		interpreted['UL_APP_ACK_REQ'] = this.addData(value);
+		break;
+	  case '240': //APP_SPECIFIC
+		interpreted['APP_SPECIFIC'] = this.addData(value);
+		break;
       case 'dlId':
         if (tlv.v > 15 || tlv.v < 0) {
           interpreted['dlId'] = this.addError('Bad DLID [' + value + ']');

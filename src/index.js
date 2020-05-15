@@ -136,12 +136,12 @@ static interpretePayload(tlvs) {
         break;
       case '14'://exit
         interpreted['bleExit'] = this.addData([]);
-        for (var i = 0; i < value.length / 6; i++) {
-          var lsbMaj = value.substring(0 + (6 * i), 2 + (6 * i));
-          var lsbMin = value.substring(2 + (6 * i), 4 + (6 * i));
-          var msbMin = value.substring(4 + (6 * i), 6 + (6 * i));
-
-          interpreted['bleExit'].data.push({ "major": "00" + lsbMaj, "minor": msbMin + lsbMin });
+        for (var i = 0; i < value.length / 8; i++) {
+          var lsbMaj = value.substring(0 + (8 * i), 2 + (8 * i));
+          var lsbMin = value.substring(2 + (8 * i), 4 + (8 * i));
+          var msbMin = value.substring(4 + (8 * i), 6 + (8 * i));
+		  var time   = parseInt(value.substring(6 + (8 * i), 8 + (8 * i)),16);
+          interpreted['bleExit'].data.push({ "major": "00" + lsbMaj, "minor": msbMin + lsbMin,"time":time });
         }
         break;
       case '0a': // noise detection
@@ -241,10 +241,15 @@ static interpretePayload(tlvs) {
 	   interpreted['PROX_ENTER'] = this.addData([])
 	   for(var i = 0;i<(value.length/16);i++)
 	   {
-			let devaddr = value.substring(i*16+0, i*16+12);
+			let devaddrLE = value.substring(i*16+0, i*16+12);
+			let devaddrBE='';
+			for(var j=devaddrLE.length-2;j>=0;j=j-2)
+			{
+				devaddrBE += ''+devaddrLE[j]+devaddrLE[j+1];
+			}
 			let lrssi = parseInt(value.substring(i*16+12, i*16+14), 16)-254;
 			let time = parseInt(value.substring(i*16+14, i*16+16),16);
-			interpreted['PROX_ENTER'].data.push({"devaddr":devaddr,"rssi":lrssi,"timeSinceContact":time});
+			interpreted['PROX_ENTER'].data.push({"devaddr":devaddrBE,"rssi":lrssi,"timeSinceContact":time});
 		}
 		interpreted['PROX_ENTER'].data.push({"raw":value});
 	    
@@ -253,9 +258,14 @@ static interpretePayload(tlvs) {
 	   interpreted['PROX_EXIT'] = this.addData([])
 	   for(var i = 0;i<(value.length/14);i++)
 	   {
-			let devaddr2 = value.substring(i*14+0, i*14+12);
+			let devaddrLE2 = value.substring(i*14+0, i*14+12);
+			let devaddrBE2='';
+			for(var j=devaddrLE2.length-2;j>=0;j=j-2)
+			{
+				devaddrBE2 += ''+devaddrLE2[j]+devaddrLE2[j+1];
+			}
 			let time2 = parseInt(value.substring(i*14+12, i*14+14),16);
-			interpreted['PROX_EXIT'].data.push({"devaddr":devaddr2,"time":time2});
+			interpreted['PROX_EXIT'].data.push({"devaddr":devaddrBE2,"time":time2});
 	   }
 	   		interpreted['PROX_EXIT'].data.push({"raw":value});
 

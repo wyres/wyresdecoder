@@ -232,10 +232,34 @@ static interpretePayload(tlvs) {
         let len = parseInt(value.substring(4, 6), 16);
         let val = value.substring(6, 6 + (len * 2));
         interpreted['getConfig'].data.push({ "key": "" + mod + key, "length": len, "value": val, "raw": value });
+		
         break;
       case '26': //UL_APP_ACK_REQ
 		interpreted['UL_APP_ACK_REQ'] = this.addData(value);
 		break;
+	   case '1b': //PROX_ENTER
+	   interpreted['PROX_ENTER'] = this.addData([])
+	   for(var i = 0;i<(value.length/16);i++)
+	   {
+			let devaddr = value.substring(i*16+0, i*16+12);
+			let lrssi = parseInt(value.substring(i*16+12, i*16+14), 16)-254;
+			let time = parseInt(value.substring(i*16+14, i*16+16),16);
+			interpreted['PROX_ENTER'].data.push({"devaddr":devaddr,"rssi":lrssi,"timeSinceContact":time});
+		}
+		interpreted['PROX_ENTER'].data.push({"raw":value});
+	    
+		break; 
+	   case '1c'://PROX_EXIT
+	   interpreted['PROX_EXIT'] = this.addData([])
+	   for(var i = 0;i<(value.length/14);i++)
+	   {
+			let devaddr2 = value.substring(i*14+0, i*14+12);
+			let time2 = parseInt(value.substring(i*14+12, i*14+14),16);
+			interpreted['PROX_EXIT'].data.push({"devaddr":devaddr2,"time":time2});
+	   }
+	   		interpreted['PROX_EXIT'].data.push({"raw":value});
+
+	   break;
 	  case '240': //APP_SPECIFIC
 		interpreted['APP_SPECIFIC'] = this.addData(value);
 		break;
